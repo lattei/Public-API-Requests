@@ -4,7 +4,7 @@ body for Modal fn*/
 const gallery = document.querySelector('.gallery');
 const body = document.querySelector('body');
 let users = [];
-
+//Empty array for users helps when mapping!
 
 /* Getting and displaying 12 Random Users, utilizing the API documentation to narrow down what is needed. */
 async function getRandomUsers() {
@@ -40,12 +40,12 @@ getRandomUsers();
 // This function opens up the modal window upon clicking on the card with the corresponding name.
 gallery.addEventListener('click', (e) => {
     const userEntry = e.target.closest('.card');
-    console.log(userEntry);
     if (!userEntry) return;
     const userName = userEntry.dataset.name;
-    const user = users.find(user => `${user.name.first} ${user.name.last}` === userName);
-    if (user) {
-        userModal(user);
+    //Find the index of user in users list based on the name
+    const userIndex = users.findIndex(user => `${user.name.first} ${user.name.last}` === userName);
+    if (userIndex !== -1) {
+        userModal(userIndex);
     };
 });
 
@@ -54,21 +54,26 @@ gallery.addEventListener('click', (e) => {
 /* Modal Window, updated the getRandomUsers fetch url to accomodate the criteria needed 
 
 */
-function userModal(user) {
-    
+function userModal(userIndex) {
+    //Added for Prev + Next Buttons: get user based on index!
+    const user = users[userIndex];
     const modalHTML = `
         <div class="modal-container">
             <div class="modal">
                 <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
                 <div class="modal-info-container">
-                <img class="modal-img" src="${user.picture.medium}" alt="profile picture of ${user.name}">
-                <h3 id="name" class="modal-name cap">${user.name.first} ${user.name.last}</h3>
-                <p class="modal-text">${user.email}</p>
-                <p class="modal-text cap>${user.location.city}</p>
-                <hr>
-                <p class="modal-text">${user.phone}</p>
-                <p class="modal-text">${user.location.street.number} ${user.location.street.name}, ${user.location.city}, ${user.location.state} ${user.location.postcode}</p>
-                <p class="modal-text">Birthday: ${new Date(user.dob.date).toLocaleDateString()}</p>
+                    <img class="modal-img" src="${user.picture.large}" alt="profile picture of ${user.name}">
+                    <h3 id="name" class="modal-name cap">${user.name.first} ${user.name.last}</h3>
+                    <p class="modal-text">${user.email}</p>
+                    <p class="modal-text cap>${user.location.city}</p>
+                    <hr>
+                    <p class="modal-text">${user.phone}</p>
+                    <p class="modal-text">${user.location.street.number} ${user.location.street.name}, ${user.location.city}, ${user.location.state} ${user.location.postcode}</p>
+                    <p class="modal-text">Birthday: ${new Date(user.dob.date).toLocaleDateString()}</p>
+                </div>
+                <div class="modal-btn-container">
+                    <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+                    <button type="button" id="modal-next" class="modal-next btn">Next</button>
                 </div>
             </div>
         </div>
@@ -77,14 +82,31 @@ function userModal(user) {
     gallery.insertAdjacentHTML('afterend', modalHTML);
     // This event listener closes the modal window by selecting the X button, and closing!
     const closeModal = document.querySelector('#modal-close-btn');
-    closeModal.addEventListener('click', () =>{
-        const modalContainer = document.querySelector('.modal-container');
-        if (modalContainer) {
-            modalContainer.remove();
-        }
+    closeModal.addEventListener('click', () => closeCurrentModal());
+    // For EXCEEDS EXPECTATIONS
+    const backModal = document.querySelector('#modal-prev');
+    const nextModal = document.querySelector('#modal-next');
+    backModal.addEventListener('click', () => {
+        closeCurrentModal();
+        const newIndex = (userIndex === users.length - 1) ? 0 : userIndex - 1;
+        console.log(newIndex)
+        userModal(newIndex);
+    });
+    nextModal.addEventListener('click', () => {
+        closeCurrentModal();
+        const newIndex = (userIndex === users.length - 1) ? 0 : userIndex + 1;
+        userModal(newIndex);
 
     });
 }
+
+function closeCurrentModal() {
+    const modalContainer = document.querySelector('.modal-container');
+    if (modalContainer) {
+        modalContainer.remove();
+    }
+
+};
 
 /* Exceeds Expectations Search Feature */
 //Select the search container and insert the form HTML provided
