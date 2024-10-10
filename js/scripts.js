@@ -3,12 +3,13 @@ gallery for the card divs
 body for Modal fn*/
 const gallery = document.querySelector('.gallery');
 const body = document.querySelector('body');
+let users = [];
 
 
-
-/* Getting and displaying 12 Random Users, utilizing the API */
+/* Getting and displaying 12 Random Users, utilizing the API documentation to narrow down what is needed. */
 async function getRandomUsers() {
-    const response = await fetch('https://randomuser.me/api/?results=12&inc=name,location,email,picture&noinfo');
+    // const response = await fetch('https://randomuser.me/api/?results=12&inc=name,location,email,picture&noinfo');
+    const response = await fetch('https://randomuser.me/api/?results=12');
     const data = await response.json();
     users = data.results;
     console.log(users);
@@ -18,7 +19,7 @@ async function getRandomUsers() {
 function showUsers(users) {
     const usersHTML = users.map(
         (user) => `
-        <div class="card">
+        <div class="card" data-name="${user.name.first} ${user.name.last}">
             <div class="card-img-container">
                 <img class="card-img" src="${user.picture.large}">
             </div>
@@ -34,3 +35,53 @@ function showUsers(users) {
     gallery.insertAdjacentHTML('beforeend', usersHTML);
 }
 getRandomUsers();
+
+/* Modal Event Listeners */
+// This function opens up the modal window upon clicking on the card with the corresponding name.
+gallery.addEventListener('click', (e) => {
+    const userEntry = e.target.closest('.card');
+    console.log(userEntry);
+    if (!userEntry) return;
+    const userName = userEntry.dataset.name;
+    const user = users.find(user => `${user.name.first} ${user.name.last}` === userName);
+    if (user) {
+        userModal(user);
+    };
+});
+
+
+
+/* Modal Window, updated the getRandomUsers fetch url to accomodate the criteria needed 
+
+*/
+function userModal(user) {
+    
+    const modalHTML = `
+        <div class="modal-container">
+            <div class="modal">
+                <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+                <div class="modal-info-container">
+                <img class="modal-img" src="${user.picture.medium}" alt="profile picture of ${user.name}">
+                <h3 id="name" class="modal-name cap">${user.name.first} ${user.name.last}</h3>
+                <p class="modal-text">${user.email}</p>
+                <p class="modal-text cap>${user.location.city}</p>
+                <hr>
+                <p class="modal-text">${user.phone}</p>
+                <p class="modal-text">${user.location.street.number} ${user.location.street.name}, ${user.location.city}, ${user.location.state} ${user.location.postcode}</p>
+                <p class="modal-text">Birthday: ${new Date(user.dob.date).toLocaleDateString()}</p>
+                </div>
+            </div>
+        </div>
+    `
+;
+    gallery.insertAdjacentHTML('afterend', modalHTML);
+    // This event listener closes the modal window by selecting the X button, and closing!
+    const closeModal = document.querySelector('#modal-close-btn');
+    closeModal.addEventListener('click', () =>{
+        const modalContainer = document.querySelector('.modal-container');
+        if (modalContainer) {
+            modalContainer.remove();
+        }
+
+    });
+}
