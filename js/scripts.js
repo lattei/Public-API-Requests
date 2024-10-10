@@ -85,3 +85,38 @@ function userModal(user) {
 
     });
 }
+
+/* Exceeds Expectations Search Feature */
+//Select the search container and insert the form HTML provided
+const searchContainer = document.querySelector('.search-container');
+searchContainer.innerHTML = `<form action="#" method="get">
+<input type="search" id="search-input" class="search-input" placeholder="Search...">
+<input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+</form>`;
+//Select the search input ID in order for User to type
+const searchInput = document.querySelector('#search-input');
+searchInput.addEventListener('input', (e) => {
+    const search = e.target.value.toLowerCase();
+    //Call searchUsers to actively search!
+    searchUsers(search);
+})
+/* psuedocode:
+Start with no user cards upon searching
+Filter through users by first and last name, include them if it meets input
+If no corresponding letters or name is found, return an error
+Else show users
+*/
+function searchUsers(search) {
+    gallery.innerHTML = '';
+    const searchedUsers = users.filter(
+        user => {
+            const userName = `${user.name.first} ${user.name.last}`.toLowerCase();
+            return userName.includes(search);
+        }
+    );
+    if (searchedUsers.length === 0) {
+        gallery.innerHTML = "<p> Nothing found, sorry!</p>"
+    } else {
+        showUsers(searchedUsers);
+    }
+}
