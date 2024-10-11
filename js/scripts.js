@@ -88,7 +88,7 @@ function userModal(userIndex) {
     const nextModal = document.querySelector('#modal-next');
     backModal.addEventListener('click', () => {
         closeCurrentModal();
-        const newIndex = (userIndex === users.length - 1) ? 0 : userIndex - 1;
+        const newIndex = (userIndex === 0) ? users.length - 1 : userIndex - 1;
         console.log(newIndex)
         userModal(newIndex);
     });
